@@ -1,10 +1,10 @@
 package algonquin.cst2335.moul0084.ui;
-
+import android.view.View;
+import android.widget.ImageView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 import android.os.Bundle;
 import android.widget.Toast;
-
 import algonquin.cst2335.moul0084.data.MainViewModel;
 import algonquin.cst2335.moul0084.databinding.ActivityMainBinding;
 
@@ -48,6 +48,10 @@ public class MainActivity extends AppCompatActivity {
             model.isSelected.postValue(isChecked);
             showToast("Radio button clicked");
         });
+        variableBinding.imageView.setOnClickListener( v -> {
+               showToast("The width ="+ v.getWidth() + " and the height =" + v.getHeight());
+        });
+
     }
         private void showToast(String message) {
             Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
