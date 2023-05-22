@@ -5,4 +5,7 @@
     <string name="button_message">Je suis un bouto</string>
     <string name="editmessage"> Je suis un editeur de texte  </string>
     <string name="hinttext"> Veuillez ecrire quelque chose </string>
+    <string name="checkbox_message">Est ce que tu bois du cafe?</string>
+    <string name="switch_message">Est ce que tu bois du cafe?</string>
+    <string name="radio_message">Est ce que tu bois du cafe?</string>
 </resources>

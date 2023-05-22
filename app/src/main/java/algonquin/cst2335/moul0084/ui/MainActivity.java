@@ -3,6 +3,7 @@ package algonquin.cst2335.moul0084.ui;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 import android.os.Bundle;
+import android.widget.Toast;
 
 import algonquin.cst2335.moul0084.data.MainViewModel;
 import algonquin.cst2335.moul0084.databinding.ActivityMainBinding;
@@ -30,5 +31,26 @@ public class MainActivity extends AppCompatActivity {
         });
 
         model = new ViewModelProvider(this).get(MainViewModel.class);
+        model.isSelected.observe(this, selected -> {
+            variableBinding.mycheckbox.setChecked(selected);
+            variableBinding.myswitch.setChecked(selected);
+            variableBinding.myradio.setChecked(selected);
+        });
+        variableBinding.mycheckbox.setOnCheckedChangeListener((btn, isChecked) -> {
+            model.isSelected.postValue(isChecked);
+            showToast("CheckBox clicked");
+        });
+        variableBinding.myswitch.setOnCheckedChangeListener((btn, isChecked) -> {
+            model.isSelected.postValue(isChecked);
+            showToast("Switch clicked");
+        });
+        variableBinding.myradio.setOnCheckedChangeListener((btn, isChecked) -> {
+            model.isSelected.postValue(isChecked);
+            showToast("Radio button clicked");
+        });
     }
+        private void showToast(String message) {
+            Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+        }
+
 }
