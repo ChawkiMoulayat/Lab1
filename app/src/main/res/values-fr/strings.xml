@@ -3,4 +3,6 @@
     <string name="app_name">Chawki\'s Android Labs</string>
     <string name="Hello_message">Bonjour tout le monde!</string>
     <string name="button_message">Je suis un bouto</string>
+    <string name="editmessage"> Je suis un editeur de texte  </string>
+    <string name="hinttext"> Veuillez ecrire quelque chose </string>
 </resources>
