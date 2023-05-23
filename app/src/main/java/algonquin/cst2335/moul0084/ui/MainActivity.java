@@ -1,6 +1,4 @@
 package algonquin.cst2335.moul0084.ui;
-import android.view.View;
-import android.widget.ImageView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 import android.os.Bundle;
@@ -18,19 +16,13 @@ public class MainActivity extends AppCompatActivity {
         model = new ViewModelProvider(this).get(MainViewModel.class);
         variableBinding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(variableBinding.getRoot());
-
-        variableBinding.textview.setText(model.editString.getValue());
-
         variableBinding.mybutton.setOnClickListener(click -> {
             model.editString.postValue(variableBinding.myedittext.getText().toString());
         });
-
         model.editString.observe(this, s -> {
             String newText = "Your edit text has: " + s;
             variableBinding.textview.setText(newText);
         });
-
-        model = new ViewModelProvider(this).get(MainViewModel.class);
         model.isSelected.observe(this, selected -> {
             variableBinding.mycheckbox.setChecked(selected);
             variableBinding.myswitch.setChecked(selected);
