@@ -30,17 +30,17 @@ public class MainActivity extends AppCompatActivity {
         });
         variableBinding.mycheckbox.setOnCheckedChangeListener((btn, isChecked) -> {
             model.isSelected.postValue(isChecked);
-            showToast("CheckBox clicked");
+            showToast("clicked");
         });
         variableBinding.myswitch.setOnCheckedChangeListener((btn, isChecked) -> {
             model.isSelected.postValue(isChecked);
-            showToast("Switch clicked");
+
         });
         variableBinding.myradio.setOnCheckedChangeListener((btn, isChecked) -> {
             model.isSelected.postValue(isChecked);
-            showToast("Radio button clicked");
+
         });
-        variableBinding.imageView.setOnClickListener( v -> {
+        variableBinding.imageButton.setOnClickListener( v -> {
                showToast("The width ="+ v.getWidth() + " and the height =" + v.getHeight());
         });
 

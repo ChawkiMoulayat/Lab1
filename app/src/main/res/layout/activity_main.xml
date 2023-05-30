@@ -29,7 +29,7 @@
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
         android:layout_marginBottom="20dp"
-        android:text="@string/checkbox_message"/>
+        android:text="Do you drink coffee"/>
     <Switch
         android:id="@+id/myswitch"
         android:layout_height="48dp"
@@ -45,10 +45,16 @@
     <ImageView
         android:id="@+id/imageView"
         android:src="@drawable/logo_algonquin"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="Logo Button"
         />
-
-
+    <ImageButton
+        android:id="@+id/imageButton"
+        android:src="@drawable/logo_algonquin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="Logo Button"
+        />
 
 </LinearLayout>
