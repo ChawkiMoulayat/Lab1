@@ -10,20 +10,21 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.LinearInterpolator;
-import android.view.animation.RotateAnimation;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Switch;
+import android.widget.TextView;
 
 import java.io.File;
+
+import algonquin.cst2335.moul0084.databinding.ActivityMainBinding;
 
 public class MainActivity extends AppCompatActivity {
     ImageView imgView;
     Switch sw;
 
+    private ActivityMainBinding variableBinding;
     @Override
     protected void onResume() {
         super.onResume();
@@ -57,37 +58,45 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        SharedPreferences sharedPreferences  = getSharedPreferences("MyData", Context.MODE_PRIVATE);
-        String emailAddress = sharedPreferences .getString("LoginName", "");
-
+        variableBinding = ActivityMainBinding.inflate(getLayoutInflater());
+        setContentView(variableBinding.getRoot());
+        SharedPreferences sharedPreferences = getSharedPreferences("MyData", Context.MODE_PRIVATE);
+        // String emailAddress = sharedPreferences.getString("LoginName", "");
+        SharedPreferences prefs = getSharedPreferences("MyData", Context.MODE_PRIVATE);
+        String emailAddress = prefs.getString("EmailAddress", "");
+        TextView emailEditText = variableBinding.emailEditText;
+        // Set the email address to the TextView
+        emailEditText.setText(emailAddress);
         Log.w("MainActivity", "In onCreate() - Loading Widgets");
 
         Log.w("MainActivity", "In onCreate() - This is the first function that gets created when an application is launched.");
-        Button button = findViewById(R.id.loginButton);
-        EditText emailEditText = findViewById(R.id.emailEditText);
-        emailEditText.setText(emailAddress);
+        Button button = variableBinding.loginButton;
+
         button.setOnClickListener(clk -> {
-            // Perform the action when the loginButton is clicked
+            // Retrieve the stored email address from SharedPreferences
+            String storedEmailAddress = prefs.getString("email", "");
+
+            // Get the entered email address from the EditText
+            String email = emailEditText.getText().toString();
+
+            // Check if the login email address is different from the stored email address
+            if (!storedEmailAddress.equals(email)) {
+                // Reset the phone number and image
+                SharedPreferences.Editor resetEditor = prefs.edit();
+                resetEditor.remove("PhoneNumber");
+                resetEditor.remove("ImageUri");
+                resetEditor.apply();
+            }
+
+            // Store the current email address in SharedPreferences
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putString("email", email);
+            editor.apply();
+
             // Launch the second activity
             Intent secondIntent = new Intent(MainActivity.this, SecondActivity.class);
-            String email = emailEditText.getText().toString();
-            SharedPreferences prefs;
-            prefs = getSharedPreferences("MyData", Context.MODE_PRIVATE);
-            secondIntent.putExtra("EmailAddress", emailEditText.getText().toString());
-            SharedPreferences.Editor editor = prefs.edit();
-            editor.putString("LoginName", email);
-            editor.putFloat("hi" , 6.0f);
-            editor.putInt("age" , 35);
-            editor.apply();
+            secondIntent.putExtra("email", email);
             startActivity(secondIntent);
         });
-
-        String filename = "Picture.png";
-        File file = new File(getFilesDir(), filename);
-
-        if (file.exists()) {
-            Bitmap theImage = BitmapFactory.decodeFile(file.getAbsolutePath());
-        }
     }
 }
