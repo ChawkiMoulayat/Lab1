@@ -1,6 +1,8 @@
 package algonquin.cst2335.moul0084;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -10,47 +12,55 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 import com.google.android.material.snackbar.Snackbar;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import algonquin.cst2335.moul0084.databinding.ActivityChatRoomBinding;
 import algonquin.cst2335.moul0084.databinding.ReceiveMessageBinding;
 import algonquin.cst2335.moul0084.databinding.SentMessageBinding;
 
+
 public class ChatRoom extends AppCompatActivity {
     ActivityChatRoomBinding binding;
+
     ArrayList<ChatMessage> messages = new ArrayList<>();
     ChatRoomViewModel chatModel;
+    MessageDatabase db;
 
     private RecyclerView.Adapter myAdapter;
-    private ChatMessageDAO mDAO;
+    ChatMessageDAO mDAO;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityChatRoomBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        MessageDatabase db = Room.databaseBuilder(getApplicationContext(), MessageDatabase.class, "database-name").build();
+        FrameLayout fragmentLocation = findViewById(R.id.fragmentLocation);
+        db = Room.databaseBuilder(getApplicationContext(), MessageDatabase.class, "database-name").build();
         mDAO = db.cmDAO();
         chatModel = new ViewModelProvider(this).get(ChatRoomViewModel.class);
         messages = chatModel.messages.getValue();
+        boolean IAmTablet = fragmentLocation != null;
+        Executor thread = Executors.newSingleThreadExecutor();
+        thread.execute(()->{
 
-        if(messages == null)
-        {
-            chatModel.messages.postValue( messages = new ArrayList<ChatMessage>());
-            chatModel.messages.setValue(messages = new ArrayList<>());
+            //add all privious database
+            List<ChatMessage> allMessages = mDAO.getAllMessages();
 
-            Executor thread = Executors.newSingleThreadExecutor();
-            thread.execute(() ->
-            {
-                // get the data from database then load the RecyclerView
-                messages.addAll( mDAO.getAllMessages() );
-                runOnUiThread( () ->  binding.recyclerView.setAdapter( myAdapter ));
-            });
+
+            messages.addAll(allMessages);
+        });
+
+
+        if (messages == null){
+            messages = new ArrayList<>();
+            chatModel.messages.postValue(messages);
         }
         binding.sendButton.setOnClickListener(click ->{
             String msg = binding.textInput.getText().toString();
@@ -107,6 +117,19 @@ public class ChatRoom extends AppCompatActivity {
         });
 
         binding.recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        chatModel.selectedMessage.observe(this, (newMessageValue) -> {
+            if (newMessageValue != null) {
+                FragmentManager fMgr = getSupportFragmentManager();
+                FragmentTransaction tx = fMgr.beginTransaction();
+
+                MessageDetailsFragment chatFragment = new MessageDetailsFragment(newMessageValue);
+                tx.add(R.id.fragmentLocation, chatFragment);
+                tx.replace(R.id.fragmentLocation, chatFragment);
+                tx.addToBackStack(null);
+                tx.commit();
+
+            }
+        });
     }
     class MyRowHolder extends RecyclerView.ViewHolder {
         TextView messageText;
@@ -115,7 +138,7 @@ public class ChatRoom extends AppCompatActivity {
         public MyRowHolder(@NonNull View itemView) {
             super(itemView);
             itemView.setOnClickListener(clk ->{
-
+/*
                 int position = getAbsoluteAdapterPosition();
                 RecyclerView.ViewHolder newHolder = myAdapter.onCreateViewHolder(null, myAdapter.getItemViewType(position));
 
@@ -147,6 +170,11 @@ public class ChatRoom extends AppCompatActivity {
                             })
                             .show();
                 }).create().show();
+*/
+                    int position = getAbsoluteAdapterPosition();
+                    ChatMessage selected = messages.get(position);
+
+                    chatModel.selectedMessage.postValue(selected);
             });
             messageText = itemView.findViewById(R.id.messageText);
             timeText = itemView.findViewById(R.id.timeText);
