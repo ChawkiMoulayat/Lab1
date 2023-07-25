@@ -42,22 +42,17 @@ public class ChatRoom extends AppCompatActivity {
         binding = ActivityChatRoomBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         FrameLayout fragmentLocation = findViewById(R.id.fragmentLocation);
+        boolean IAmTablet = fragmentLocation != null;
         db = Room.databaseBuilder(getApplicationContext(), MessageDatabase.class, "database-name").build();
         mDAO = db.cmDAO();
         chatModel = new ViewModelProvider(this).get(ChatRoomViewModel.class);
         messages = chatModel.messages.getValue();
-        boolean IAmTablet = fragmentLocation != null;
         Executor thread = Executors.newSingleThreadExecutor();
         thread.execute(()->{
-
             //add all privious database
             List<ChatMessage> allMessages = mDAO.getAllMessages();
-
-
             messages.addAll(allMessages);
         });
-
-
         if (messages == null){
             messages = new ArrayList<>();
             chatModel.messages.postValue(messages);
@@ -66,8 +61,15 @@ public class ChatRoom extends AppCompatActivity {
             String msg = binding.textInput.getText().toString();
             SimpleDateFormat sdf = new SimpleDateFormat("EEEE, dd-MM-yyyy hh:mm:ss a");
             String currentDateandTime = sdf.format(new Date());
-            boolean type = true;
-            messages.add(new ChatMessage(msg, currentDateandTime, type));
+            boolean type = true; // modified from true to false
+
+         //   messages.add(new ChatMessage(msg, currentDateandTime, type));
+            ChatMessage newMessage = new ChatMessage(msg , currentDateandTime , type);
+            Executor thread1 = Executors.newSingleThreadExecutor();
+            thread1.execute(() -> {
+                newMessage.id = mDAO.insertMessage(newMessage);
+            });
+            messages.add(newMessage);
             myAdapter.notifyItemInserted(messages.size()-1);
             binding.textInput.setText("");  //clears the text input field
         });
@@ -76,7 +78,13 @@ public class ChatRoom extends AppCompatActivity {
             SimpleDateFormat sdf = new SimpleDateFormat("EEEE, dd-MM-yyyy hh:mm:ss a");
             String currentDateandTime = sdf.format(new Date());
             boolean type = false;
-            messages.add(new ChatMessage(msg, currentDateandTime, type));
+           // messages.add(new ChatMessage(msg, currentDateandTime, type));
+            ChatMessage newMessage = new ChatMessage(msg , currentDateandTime , type);
+            Executor thread2 = Executors.newSingleThreadExecutor();
+            thread2.execute(() -> {
+                newMessage.id = mDAO.insertMessage(newMessage);
+            });
+            messages.add(newMessage);
             myAdapter.notifyItemInserted(messages.size()-1);
             binding.textInput.setText("");  //clears the text input field
         });
@@ -121,13 +129,12 @@ public class ChatRoom extends AppCompatActivity {
             if (newMessageValue != null) {
                 FragmentManager fMgr = getSupportFragmentManager();
                 FragmentTransaction tx = fMgr.beginTransaction();
-
+                fragmentLocation.setVisibility(View.VISIBLE);
                 MessageDetailsFragment chatFragment = new MessageDetailsFragment(newMessageValue);
                 tx.add(R.id.fragmentLocation, chatFragment);
                 tx.replace(R.id.fragmentLocation, chatFragment);
                 tx.addToBackStack(null);
                 tx.commit();
-
             }
         });
     }
