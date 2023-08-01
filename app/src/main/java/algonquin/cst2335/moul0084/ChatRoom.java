@@ -10,10 +10,15 @@ import androidx.room.Room;
 import android.app.AlertDialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.TextView;
+import android.widget.Toast;
+import android.widget.Toolbar;
+
 import com.google.android.material.snackbar.Snackbar;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -35,14 +40,55 @@ public class ChatRoom extends AppCompatActivity {
 
     private RecyclerView.Adapter myAdapter;
     ChatMessageDAO mDAO;
+    Executor thread = Executors.newSingleThreadExecutor();
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+         super.onCreateOptionsMenu(menu);
+        getMenuInflater().inflate(R.menu.my_menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.item_1) {
+            TextView messageText = findViewById(R.id.messageText);
+            ChatMessage m = chatModel.selectedMessage.getValue();
+            int position = messages.indexOf(m);
+            AlertDialog.Builder builder = new AlertDialog.Builder( ChatRoom.this );
+            builder.setMessage("Do you want to delete the message: "  + messageText.getText())
+                    .setTitle("Question: ")
+                    .setPositiveButton("Yes", (d, c) -> {
+                        Executor thread = Executors.newSingleThreadExecutor();
+                        thread.execute(() -> {
+                            mDAO.deleteMessage(m);
+                        });
+                        messages.remove(position);
+                        myAdapter.notifyItemRemoved(position);
+                        Snackbar.make(messageText, "You deleted message #" + position, Snackbar.LENGTH_LONG)
+                                .setAction("Undo", cl -> {
+                                    thread.execute(() -> {
+                                        mDAO.insertMessage(m);
+                                    });
+                                    messages.add(position, m);
+                                    myAdapter.notifyItemInserted(position);
+                                }).show();
+                    }).setNegativeButton("No", (d, c) -> {
+                    }).create()
+                    .show();
+        } else if (item.getItemId() == R.id.item_2) {
+            Toast.makeText(this, "Chat Messenger Created by Chawki ! ", Toast.LENGTH_LONG).show();
+        }
+        return true;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityChatRoomBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        setSupportActionBar(binding.myToolbar);
         FrameLayout fragmentLocation = findViewById(R.id.fragmentLocation);
         boolean IAmTablet = fragmentLocation != null;
+
         db = Room.databaseBuilder(getApplicationContext(), MessageDatabase.class, "database-name").build();
         mDAO = db.cmDAO();
         chatModel = new ViewModelProvider(this).get(ChatRoomViewModel.class);

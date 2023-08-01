@@ -10,7 +10,7 @@ public class ChatRoomViewModel extends ViewModel {
     public MutableLiveData<ChatMessage> selectedMessage = new MutableLiveData< >();
 
 
-    public ChatRoomViewModel() {
-        messages.setValue(new ArrayList<>());
-    }
+    //public ChatRoomViewModel() {
+      //  messages.setValue(new ArrayList<>());
+   // }
 }
